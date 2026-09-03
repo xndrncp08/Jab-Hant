@@ -1,0 +1,29 @@
+# Env / secrets
+.env
+backend/.env
+
+# Personal data — never commit these
+data/jobs.db
+data/chroma/
+data/resume/
+*.pdf
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+
+# Node / frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+
+# OS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/

@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection {
+    background: #3452ff33;
+  }
+  *:focus-visible {
+    outline: 2px solid #3452ff;
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .num {
+    font-family: "IBM Plex Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}

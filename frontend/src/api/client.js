@@ -1,4 +1,8 @@
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+// In local dev, point at the separately-running backend (localhost:8000 by
+// default, or override with VITE_API_URL). In production, the frontend is
+// served by the same FastAPI app as the API, so an empty base means
+// same-origin requests — no separate URL needed, and no CORS involved.
+const BASE_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, {

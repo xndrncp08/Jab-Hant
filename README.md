@@ -25,7 +25,7 @@ sent automatically.
 
 ```bash
 git clone <this-repo>
-cd job-hunter
+cd jabHunter
 
 # Backend
 python3 -m venv backend/.venv

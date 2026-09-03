@@ -41,8 +41,15 @@ class Settings(BaseSettings):
     # Resume storage
     resume_storage_dir: str = str((BACKEND_DIR.parent / "data" / "resume").resolve())
 
-    # CORS
+    # CORS (only relevant in local dev — in production the frontend is
+    # served from the same origin as the API, so CORS doesn't apply)
     frontend_origin: str = "http://localhost:5173"
+
+    # Public deployment password gate (HTTP Basic Auth). Leave both empty
+    # for local development — auth is only enforced when both are set.
+    # NEVER deploy publicly without setting these.
+    app_username: str = ""
+    app_password: str = ""
 
     # Embedding model (local, via sentence-transformers — no external API calls)
     embedding_model: str = "all-MiniLM-L6-v2"

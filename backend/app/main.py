@@ -18,8 +18,13 @@ logger = logging.getLogger("job_hunter.main")
 
 app = FastAPI(title="Job Hunter", version="0.1.0")
 
-# Auth runs first (outermost) so nothing — including static frontend files —
-# is reachable without credentials once APP_USERNAME/APP_PASSWORD are set.
+# Auth runs first (outermost). See app/auth.py for the full explanation of
+# what is and isn't gated: in short, the frontend's static files (and the
+# custom /login screen they contain) are always reachable so the login UI
+# itself can load, while every /api/* route (except /api/health) requires
+# valid Authorization: Basic credentials once APP_USERNAME/APP_PASSWORD
+# are set. This is different from a "gate everything" model on purpose —
+# see auth.py's module docstring for why.
 app.middleware("http")(auth_middleware)
 
 # CORS only matters for local dev (frontend on :5173 hitting backend on
@@ -74,7 +79,8 @@ if _frontend_dist.exists():
     async def serve_frontend(full_path: str):
         # Let any real static file (favicon, etc.) resolve directly; anything
         # else falls back to index.html so React Router can handle the route
-        # client-side (this is a single-page app).
+        # client-side (this is a single-page app) — including showing the
+        # /login screen itself when not yet authenticated.
         candidate = _frontend_dist / full_path
         if full_path and candidate.is_file():
             return FileResponse(candidate)

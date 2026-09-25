@@ -2,16 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  Color system reference (see tailwind.config.js for the source of truth):
+    paper/base   #010736  — page background
+    surface/card #0D1C42  — panel/card background
+    line/accent  #22396F  — borders, dividers, secondary UI
+    ink/highlight #FCF1D0 — primary text + primary action color
+
+  Text hierarchy is built from opacity steps on `highlight` rather than
+  introducing new hues, to stay inside the 4-color palette:
+    text-highlight        primary text   — ~17:1 contrast on paper, ~14.8:1 on card
+    text-highlight/75     secondary text — ~7.7:1 contrast on card (still comfortably AA)
+    text-highlight/55     tertiary text  — ~5.3:1 contrast on card (still passes AA, 4.5:1 min)
+  Never go below /55 for body text — that's the floor where AA (4.5:1)
+  starts to fail against the card background specifically.
+*/
+
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
   }
-  ::selection {
-    background: #3452ff33;
+
+  body {
+    background-color: #010736;
+    color: #FCF1D0;
   }
-  *:focus-visible {
-    outline: 2px solid #3452ff;
+
+  ::selection {
+    background: #fcf1d033;
+  }
+
+  /* Explicit, visible focus ring on every interactive element — required
+     by the style guide and by WCAG 2.4.7 (Focus Visible). We use
+     :focus-visible (not :focus) so mouse clicks don't show a ring that's
+     only meant for keyboard/assistive-tech navigation. */
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible,
+  [tabindex]:focus-visible {
+    outline: 2px solid #FCF1D0;
     outline-offset: 2px;
+    border-radius: 3px;
   }
 }
 

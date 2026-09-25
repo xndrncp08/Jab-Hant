@@ -2,14 +2,24 @@ import { useEffect, useState, useCallback } from "react";
 import { api } from "../api/client.js";
 import JobRow from "../components/JobRow.jsx";
 
-const STATUS_OPTIONS = ["New", "Interested", "Applied", "Interview", "Rejected", "Offer", "Archived"];
+const STATUS_OPTIONS = [
+  "New",
+  "Interested",
+  "Applied",
+  "Interview",
+  "Rejected",
+  "Offer",
+  "Archived",
+];
 const REMOTE_OPTIONS = ["Remote", "Hybrid", "On-site"];
 
 function StatCard({ label, value }) {
   return (
-    <div className="flex-1 bg-surface border border-line rounded px-5 py-4">
-      <div className="text-2xl font-display font-semibold num">{value}</div>
-      <div className="text-sm text-muted mt-0.5">{label}</div>
+    <div className="flex-1 bg-surface border border-accent rounded px-5 py-4">
+      <div className="text-2xl font-display font-semibold num text-ink">
+        {value}
+      </div>
+      <div className="text-sm text-highlight/75 mt-0.5">{label}</div>
     </div>
   );
 }
@@ -65,13 +75,18 @@ export default function Dashboard() {
     }
   }
 
+  const inputCls =
+    "px-3 py-1.5 text-sm bg-surface border border-accent rounded text-ink outline-none focus-visible:ring-2 focus-visible:ring-highlight";
+
   return (
-    <div>
+    <main>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="font-display text-2xl font-semibold">Dashboard</h1>
+          <h1 className="font-display text-2xl font-semibold text-ink">
+            Dashboard
+          </h1>
           {lastSearch && (
-            <p className="text-sm text-muted mt-1">
+            <p className="text-sm text-highlight/75 mt-1">
               Last search:{" "}
               {lastSearch.completed_at
                 ? new Date(lastSearch.completed_at).toLocaleString(undefined, {
@@ -87,38 +102,52 @@ export default function Dashboard() {
         <button
           onClick={handleRunSearch}
           disabled={searching}
-          className="px-4 py-2 bg-signal text-white text-sm font-medium rounded hover:bg-signal/90 disabled:opacity-50 transition-colors"
+          aria-label="Run a job search now"
+          className="px-4 py-2 bg-highlight text-base text-sm font-semibold rounded hover:bg-highlight/90 active:bg-highlight/80 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
         >
           {searching ? "Searching…" : "Run search now"}
         </button>
       </div>
 
       {error && (
-        <div className="mb-5 px-4 py-3 bg-bad-dim text-bad text-sm rounded border border-bad/20">
+        <p
+          role="alert"
+          className="mb-5 px-4 py-3 bg-accent/40 text-ink text-sm rounded border border-accent"
+        >
           {error}
-        </div>
+        </p>
       )}
 
-      <div className="flex gap-3 mb-6">
+      <section aria-label="Summary statistics" className="flex gap-3 mb-6">
         <StatCard label="New" value={counts.New || 0} />
         <StatCard label="Interested" value={counts.Interested || 0} />
         <StatCard label="Applied" value={counts.Applied || 0} />
         <StatCard label="Interview" value={counts.Interview || 0} />
         <StatCard label="Offer" value={counts.Offer || 0} />
-      </div>
+      </section>
 
-      <div className="flex flex-wrap gap-2 mb-4">
+      <section aria-label="Filter jobs" className="flex flex-wrap gap-2 mb-4">
+        <label className="sr-only" htmlFor="job-search-text">
+          Search title or company
+        </label>
         <input
+          id="job-search-text"
           type="text"
           placeholder="Search title or company"
           value={filters.q}
           onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))}
-          className="px-3 py-1.5 text-sm bg-surface border border-line rounded outline-none focus:border-signal w-56"
+          className={`${inputCls} placeholder:text-highlight/55 w-56`}
         />
+        <label className="sr-only" htmlFor="filter-status">
+          Filter by status
+        </label>
         <select
+          id="filter-status"
           value={filters.status}
-          onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
-          className="px-3 py-1.5 text-sm bg-surface border border-line rounded outline-none focus:border-signal"
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, status: e.target.value }))
+          }
+          className={inputCls}
         >
           <option value="">All statuses</option>
           {STATUS_OPTIONS.map((s) => (
@@ -127,10 +156,16 @@ export default function Dashboard() {
             </option>
           ))}
         </select>
+        <label className="sr-only" htmlFor="filter-remote">
+          Filter by location type
+        </label>
         <select
+          id="filter-remote"
           value={filters.remote_type}
-          onChange={(e) => setFilters((f) => ({ ...f, remote_type: e.target.value }))}
-          className="px-3 py-1.5 text-sm bg-surface border border-line rounded outline-none focus:border-signal"
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, remote_type: e.target.value }))
+          }
+          className={inputCls}
         >
           <option value="">Any location type</option>
           {REMOTE_OPTIONS.map((r) => (
@@ -139,30 +174,41 @@ export default function Dashboard() {
             </option>
           ))}
         </select>
+        <label className="sr-only" htmlFor="filter-match">
+          Filter by minimum match score
+        </label>
         <select
+          id="filter-match"
           value={filters.min_match}
-          onChange={(e) => setFilters((f) => ({ ...f, min_match: e.target.value }))}
-          className="px-3 py-1.5 text-sm bg-surface border border-line rounded outline-none focus:border-signal"
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, min_match: e.target.value }))
+          }
+          className={inputCls}
         >
           <option value="">Any match score</option>
           <option value="80">80%+</option>
           <option value="60">60%+</option>
           <option value="40">40%+</option>
         </select>
-      </div>
+      </section>
 
-      <div className="bg-surface border border-line rounded overflow-hidden">
+      <section
+        aria-label="Job listings"
+        className="bg-surface border border-accent rounded overflow-hidden"
+      >
         {loading ? (
-          <div className="px-5 py-10 text-center text-muted text-sm">Loading jobs…</div>
+          <p className="px-5 py-10 text-center text-highlight/75 text-sm">
+            Loading jobs…
+          </p>
         ) : jobs.length === 0 ? (
-          <div className="px-5 py-10 text-center text-muted text-sm">
-            No jobs match these filters yet. Upload a resume in Settings and run a search to get
-            started.
-          </div>
+          <p className="px-5 py-10 text-center text-highlight/75 text-sm">
+            No jobs match these filters yet. Upload a resume in Settings and run
+            a search to get started.
+          </p>
         ) : (
           jobs.map((job) => <JobRow key={job.id} job={job} />)
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

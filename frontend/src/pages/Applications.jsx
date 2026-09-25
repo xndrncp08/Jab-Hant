@@ -14,23 +14,31 @@ export default function Applications() {
   }, []);
 
   return (
-    <div>
-      <h1 className="font-display text-2xl font-semibold mb-1">Applications</h1>
-      <p className="text-sm text-muted mb-6">
+    <main>
+      <h1 className="font-display text-2xl font-semibold text-ink mb-1">
+        Applications
+      </h1>
+      <p className="text-sm text-highlight/75 mb-6">
         Every job you've marked Applied, Interview, Rejected, or Offer.
       </p>
 
-      <div className="bg-surface border border-line rounded overflow-hidden">
+      <section
+        aria-label="Tracked applications"
+        className="bg-surface border border-accent rounded overflow-hidden"
+      >
         {loading ? (
-          <div className="px-5 py-10 text-center text-muted text-sm">Loading…</div>
+          <p className="px-5 py-10 text-center text-highlight/75 text-sm">
+            Loading…
+          </p>
         ) : jobs.length === 0 ? (
-          <div className="px-5 py-10 text-center text-muted text-sm">
-            Nothing tracked yet. Mark a job as Applied from its detail page to see it here.
-          </div>
+          <p className="px-5 py-10 text-center text-highlight/75 text-sm">
+            Nothing tracked yet. Mark a job as Applied from its detail page to
+            see it here.
+          </p>
         ) : (
           jobs.map((job) => <JobRow key={job.id} job={job} />)
         )}
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

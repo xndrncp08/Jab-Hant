@@ -1,16 +1,35 @@
+import { getStoredAuthHeader, clearStoredCredential } from "../hooks/useAuth.jsx";
+
 // In local dev, point at the separately-running backend (localhost:8000 by
 // default, or override with VITE_API_URL). In production, the frontend is
 // served by the same FastAPI app as the API, so an empty base means
 // same-origin requests — no separate URL needed, and no CORS involved.
 const BASE_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://localhost:8000" : "");
 
+// Fired whenever a request comes back 401, so the app shell can react
+// (show the login screen again) without every call site needing to know
+// about auth. See App.jsx, which listens for this.
+export const AUTH_EXPIRED_EVENT = "job-hunter:auth-expired";
+
 async function request(path, options = {}) {
+  const authHeader = getStoredAuthHeader();
+  const isFormData = options.body instanceof FormData;
+
   const res = await fetch(`${BASE_URL}${path}`, {
     ...options,
-    headers: options.body instanceof FormData
-      ? options.headers
-      : { "Content-Type": "application/json", ...options.headers },
+    headers: {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...authHeader,
+      ...options.headers,
+    },
   });
+
+  if (res.status === 401) {
+    clearStoredCredential();
+    window.dispatchEvent(new CustomEvent(AUTH_EXPIRED_EVENT));
+    throw new Error("Session expired. Please sign in again.");
+  }
+
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -23,6 +42,18 @@ async function request(path, options = {}) {
   }
   if (res.status === 204) return null;
   return res.json();
+}
+
+// Used by the login form itself — deliberately bypasses the shared
+// `request()` helper's 401-handling (a failed login attempt is expected
+// and shouldn't clear/redirect anything, just report failure back to the
+// form).
+export async function verifyCredentials(username, password) {
+  const encoded = btoa(`${username}:${password}`);
+  const res = await fetch(`${BASE_URL}/api/settings`, {
+    headers: { Authorization: `Basic ${encoded}` },
+  });
+  return res.ok;
 }
 
 export const api = {

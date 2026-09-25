@@ -30,9 +30,11 @@ export default function SearchHistory() {
   }
 
   return (
-    <div>
-      <h1 className="font-display text-2xl font-semibold mb-1">Search history</h1>
-      <p className="text-sm text-muted mb-6">
+    <main>
+      <h1 className="font-display text-2xl font-semibold text-ink mb-1">
+        Search history
+      </h1>
+      <p className="text-sm text-highlight/75 mb-6">
         Every scheduled and manual search run, with results and any errors.
       </p>
 
@@ -40,45 +42,42 @@ export default function SearchHistory() {
         <div>
           <button
             onClick={() => setSelected(null)}
-            className="text-sm text-muted hover:text-ink mb-4"
+            className="text-sm text-highlight/75 hover:text-ink mb-4 focus-visible:ring-2 focus-visible:ring-highlight rounded"
           >
             ← Back to history
           </button>
-          <div className="bg-surface border border-line rounded p-5 mb-4">
+          <section
+            aria-label="Search run details"
+            className="bg-surface border border-accent rounded p-5 mb-4"
+          >
             <div className="flex items-center justify-between mb-3">
               <div>
-                <span className="font-display font-semibold">
+                <span className="font-display font-semibold text-ink">
                   {formatDateTime(selected.started_at)}
                 </span>
-                <span className="ml-2 text-xs text-faint uppercase">{selected.trigger}</span>
+                <span className="ml-2 text-xs text-highlight/55 uppercase">
+                  {selected.trigger}
+                </span>
               </div>
-              <span
-                className={`text-xs px-2 py-0.5 rounded ${
-                  selected.status === "completed"
-                    ? "bg-good-dim text-good"
-                    : selected.status === "failed"
-                    ? "bg-bad-dim text-bad"
-                    : "bg-warn-dim text-warn"
-                }`}
-              >
+              <span className="text-xs px-2 py-0.5 rounded border border-accent text-ink">
                 {selected.status}
               </span>
             </div>
-            <div className="flex gap-6 text-sm num mb-3">
+            <div className="flex gap-6 text-sm num mb-3 text-ink">
               <span>
-                <span className="text-muted">Scanned </span>
+                <span className="text-highlight/75">Scanned </span>
                 {selected.jobs_scanned}
               </span>
               <span>
-                <span className="text-muted">New </span>
+                <span className="text-highlight/75">New </span>
                 {selected.new_jobs}
               </span>
               <span>
-                <span className="text-muted">Duplicates </span>
+                <span className="text-highlight/75">Duplicates </span>
                 {selected.duplicate_jobs}
               </span>
               <span>
-                <span className="text-muted">Errors </span>
+                <span className="text-highlight/75">Errors </span>
                 {selected.errors?.length || 0}
               </span>
             </div>
@@ -87,9 +86,7 @@ export default function SearchHistory() {
                 {Object.entries(selected.sources).map(([source, status]) => (
                   <span
                     key={source}
-                    className={`text-xs px-2 py-0.5 rounded ${
-                      status === "Success" ? "bg-good-dim text-good" : "bg-bad-dim text-bad"
-                    }`}
+                    className="text-xs px-2 py-0.5 rounded border border-accent text-highlight/85"
                   >
                     {source}: {status}
                   </span>
@@ -97,7 +94,7 @@ export default function SearchHistory() {
               </div>
             )}
             {selected.errors?.length > 0 && (
-              <div className="mt-3 text-xs text-bad space-y-1">
+              <div className="mt-3 text-xs text-highlight/75 space-y-1">
                 {selected.errors.map((e, i) => (
                   <div key={i}>
                     {e.source}: {e.error}
@@ -105,44 +102,54 @@ export default function SearchHistory() {
                 ))}
               </div>
             )}
-          </div>
-          <div className="bg-surface border border-line rounded overflow-hidden">
+          </section>
+          <section
+            aria-label="Jobs from this search"
+            className="bg-surface border border-accent rounded overflow-hidden"
+          >
             {selected.jobs?.length > 0 ? (
               selected.jobs.map((job) => <JobRow key={job.id} job={job} />)
             ) : (
-              <div className="px-5 py-8 text-center text-muted text-sm">
+              <p className="px-5 py-8 text-center text-highlight/75 text-sm">
                 No new jobs were saved in this run.
-              </div>
+              </p>
             )}
-          </div>
+          </section>
         </div>
       ) : loading ? (
-        <div className="text-muted text-sm">Loading…</div>
+        <p className="text-highlight/75 text-sm">Loading…</p>
       ) : searches.length === 0 ? (
-        <div className="bg-surface border border-line rounded px-5 py-10 text-center text-muted text-sm">
+        <p className="bg-surface border border-accent rounded px-5 py-10 text-center text-highlight/75 text-sm">
           No searches yet. Run one from the Dashboard.
-        </div>
+        </p>
       ) : (
-        <div className="bg-surface border border-line rounded overflow-hidden">
+        <section
+          aria-label="Search history list"
+          className="bg-surface border border-accent rounded overflow-hidden"
+        >
           {searches.map((s) => (
             <button
               key={s.id}
               onClick={() => openSearch(s.id)}
-              className="w-full flex items-center justify-between px-5 py-4 border-b border-line last:border-0 hover:bg-paper transition-colors text-left"
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-accent/50 last:border-0 hover:bg-accent/20 transition-colors text-left focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-inset"
             >
               <div>
-                <div className="font-medium text-sm">{formatDateTime(s.started_at)}</div>
-                <div className="text-xs text-faint uppercase mt-0.5">{s.trigger}</div>
+                <div className="font-medium text-sm text-ink">
+                  {formatDateTime(s.started_at)}
+                </div>
+                <div className="text-xs text-highlight/55 uppercase mt-0.5">
+                  {s.trigger}
+                </div>
               </div>
-              <div className="flex gap-5 text-sm num text-muted">
+              <div className="flex gap-5 text-sm num text-highlight/85">
                 <span>{s.jobs_scanned} scanned</span>
-                <span className="text-signal">{s.new_jobs} new</span>
+                <span className="text-ink font-medium">{s.new_jobs} new</span>
                 <span>{s.duplicate_jobs} dup</span>
               </div>
             </button>
           ))}
-        </div>
+        </section>
       )}
-    </div>
+    </main>
   );
 }

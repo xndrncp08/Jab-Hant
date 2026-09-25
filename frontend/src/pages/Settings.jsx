@@ -1,27 +1,37 @@
 import { useEffect, useState, useRef } from "react";
 import { api } from "../api/client.js";
 
-function Field({ label, children, hint }) {
+function Field({ label, htmlFor, children, hint }) {
   return (
     <div className="mb-4">
-      <label className="block text-sm font-medium text-ink mb-1">{label}</label>
+      <label
+        htmlFor={htmlFor}
+        className="block text-sm font-medium text-ink mb-1"
+      >
+        {label}
+      </label>
       {children}
-      {hint && <p className="text-xs text-faint mt-1">{hint}</p>}
+      {hint && <p className="text-xs text-highlight/55 mt-1">{hint}</p>}
     </div>
   );
 }
 
 function Section({ title, children }) {
   return (
-    <div className="bg-surface border border-line rounded p-5 mb-6">
-      <h2 className="font-display font-semibold text-sm mb-4">{title}</h2>
+    <section
+      aria-label={title}
+      className="bg-surface border border-accent rounded p-5 mb-6"
+    >
+      <h2 className="font-display font-semibold text-sm mb-4 text-ink">
+        {title}
+      </h2>
       {children}
-    </div>
+    </section>
   );
 }
 
 const inputCls =
-  "w-full px-3 py-2 text-sm border border-line rounded outline-none focus:border-signal bg-white";
+  "w-full px-3 py-2 text-sm border border-accent rounded outline-none focus-visible:ring-2 focus-visible:ring-highlight bg-paper text-ink placeholder:text-highlight/55";
 
 export default function Settings() {
   const [resume, setResume] = useState(null);
@@ -34,19 +44,18 @@ export default function Settings() {
   const fileInput = useRef(null);
 
   useEffect(() => {
-    Promise.all([
-      api.getResume().catch(() => null),
-      api.getSettings(),
-    ]).then(([resumeRes, settingsRes]) => {
-      setResume(resumeRes);
-      setSettings(settingsRes);
-      const existingTerms = settingsRes.search_terms || [];
-      if (existingTerms.length > 0) {
-        setTermsText(existingTerms.join("\n"));
-      } else if (resumeRes?.search_keywords?.length) {
-        setTermsText(resumeRes.search_keywords.join("\n"));
-      }
-    });
+    Promise.all([api.getResume().catch(() => null), api.getSettings()]).then(
+      ([resumeRes, settingsRes]) => {
+        setResume(resumeRes);
+        setSettings(settingsRes);
+        const existingTerms = settingsRes.search_terms || [];
+        if (existingTerms.length > 0) {
+          setTermsText(existingTerms.join("\n"));
+        } else if (resumeRes?.search_keywords?.length) {
+          setTermsText(resumeRes.search_keywords.join("\n"));
+        }
+      },
+    );
   }, []);
 
   async function handleUpload(e) {
@@ -57,7 +66,6 @@ export default function Settings() {
     try {
       const res = await api.uploadResume(file);
       setResume(res);
-      // Seed search terms from the newly parsed resume if none set yet
       if (!termsText.trim()) {
         setTermsText((res.search_keywords || []).join("\n"));
       }
@@ -79,7 +87,10 @@ export default function Settings() {
     try {
       const values = {
         ...settings,
-        search_terms: termsText.split("\n").map((t) => t.trim()).filter(Boolean),
+        search_terms: termsText
+          .split("\n")
+          .map((t) => t.trim())
+          .filter(Boolean),
       };
       const updated = await api.updateSettings(values);
       setSettings(updated);
@@ -92,33 +103,44 @@ export default function Settings() {
     }
   }
 
-  if (!settings) return <div className="text-muted text-sm">Loading…</div>;
+  if (!settings) return <p className="text-highlight/75 text-sm">Loading…</p>;
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="font-display text-2xl font-semibold mb-6">Settings</h1>
+    <main className="max-w-2xl">
+      <h1 className="font-display text-2xl font-semibold text-ink mb-6">
+        Settings
+      </h1>
 
       {error && (
-        <div className="mb-5 px-4 py-3 bg-bad-dim text-bad text-sm rounded border border-bad/20">
+        <p
+          role="alert"
+          className="mb-5 px-4 py-3 bg-accent/40 text-ink text-sm rounded border border-accent"
+        >
           {error}
-        </div>
+        </p>
       )}
 
       <Section title="Resume">
         {resume ? (
           <div className="flex items-center justify-between mb-3">
             <div>
-              <p className="text-sm font-medium">{resume.filename}</p>
-              <p className="text-xs text-muted mt-0.5">
-                {resume.skills?.length || 0} skills detected · {resume.search_keywords?.length || 0}{" "}
-                search terms suggested
+              <p className="text-sm font-medium text-ink">{resume.filename}</p>
+              <p className="text-xs text-highlight/75 mt-0.5">
+                {resume.skills?.length || 0} skills detected ·{" "}
+                {resume.search_keywords?.length || 0} search terms suggested
               </p>
             </div>
           </div>
         ) : (
-          <p className="text-sm text-muted mb-3">No resume uploaded yet.</p>
+          <p className="text-sm text-highlight/75 mb-3">
+            No resume uploaded yet.
+          </p>
         )}
+        <label htmlFor="resume-upload" className="sr-only">
+          Upload resume PDF
+        </label>
         <input
+          id="resume-upload"
           ref={fileInput}
           type="file"
           accept="application/pdf"
@@ -128,78 +150,101 @@ export default function Settings() {
         <button
           onClick={() => fileInput.current?.click()}
           disabled={uploading}
-          className="px-4 py-2 border border-line rounded text-sm font-medium hover:bg-paper transition-colors disabled:opacity-50"
+          aria-label={resume ? "Upload a new resume PDF" : "Upload resume PDF"}
+          className="px-4 py-2 border border-accent rounded text-sm font-medium text-ink hover:bg-accent/30 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-highlight"
         >
-          {uploading ? "Uploading…" : resume ? "Upload new resume" : "Upload resume (PDF)"}
+          {uploading
+            ? "Uploading…"
+            : resume
+              ? "Upload new resume"
+              : "Upload resume (PDF)"}
         </button>
       </Section>
 
       <Section title="Search">
-        <Field label="Location">
+        <Field label="Location" htmlFor="settings-location">
           <input
+            id="settings-location"
             className={inputCls}
             value={settings.search_location || ""}
             onChange={(e) => updateField("search_location", e.target.value)}
           />
         </Field>
-        <Field label="Country">
+        <Field label="Country" htmlFor="settings-country">
           <input
+            id="settings-country"
             className={inputCls}
             value={settings.search_country || ""}
             onChange={(e) => updateField("search_country", e.target.value)}
           />
         </Field>
-        <Field label="Search distance (miles)">
+        <Field label="Search distance (miles)" htmlFor="settings-distance">
           <input
+            id="settings-distance"
             type="number"
             className={inputCls}
             value={settings.search_distance || 0}
-            onChange={(e) => updateField("search_distance", Number(e.target.value))}
+            onChange={(e) =>
+              updateField("search_distance", Number(e.target.value))
+            }
           />
         </Field>
         <Field
           label="Search terms"
+          htmlFor="settings-terms"
           hint="One per line. Seeded from your resume — edit freely."
         >
           <textarea
+            id="settings-terms"
             rows={6}
             className={`${inputCls} font-mono resize-none`}
             value={termsText}
             onChange={(e) => setTermsText(e.target.value)}
           />
         </Field>
-        <Field label="Minimum match score to save a job">
+        <Field
+          label="Minimum match score to save a job"
+          htmlFor="settings-min-match"
+        >
           <input
+            id="settings-min-match"
             type="number"
             min={0}
             max={100}
             className={inputCls}
             value={settings.min_match_score || 0}
-            onChange={(e) => updateField("min_match_score", Number(e.target.value))}
+            onChange={(e) =>
+              updateField("min_match_score", Number(e.target.value))
+            }
           />
         </Field>
       </Section>
 
       <Section title="Schedule">
         <div className="grid grid-cols-3 gap-3">
-          <Field label="Morning">
+          <Field label="Morning" htmlFor="settings-morning">
             <input
+              id="settings-morning"
               type="time"
               className={inputCls}
               value={settings.schedule_morning || "08:00"}
               onChange={(e) => updateField("schedule_morning", e.target.value)}
             />
           </Field>
-          <Field label="Afternoon">
+          <Field label="Afternoon" htmlFor="settings-afternoon">
             <input
+              id="settings-afternoon"
               type="time"
               className={inputCls}
               value={settings.schedule_afternoon || "12:00"}
-              onChange={(e) => updateField("schedule_afternoon", e.target.value)}
+              onChange={(e) =>
+                updateField("schedule_afternoon", e.target.value)
+              }
             />
           </Field>
-          <Field label="Evening">
+          <Field label="Evening" htmlFor="settings-evening">
             <input
+              id="settings-evening"
               type="time"
               className={inputCls}
               value={settings.schedule_evening || "20:00"}
@@ -207,8 +252,13 @@ export default function Settings() {
             />
           </Field>
         </div>
-        <Field label="Timezone" hint="Uses standard IANA timezone names, e.g. America/Edmonton">
+        <Field
+          label="Timezone"
+          htmlFor="settings-timezone"
+          hint="Uses standard IANA timezone names, e.g. America/Edmonton"
+        >
           <input
+            id="settings-timezone"
             className={inputCls}
             value={settings.timezone || ""}
             onChange={(e) => updateField("timezone", e.target.value)}
@@ -217,8 +267,9 @@ export default function Settings() {
       </Section>
 
       <Section title="Preferences">
-        <Field label="Remote preference">
+        <Field label="Remote preference" htmlFor="settings-remote-pref">
           <select
+            id="settings-remote-pref"
             className={inputCls}
             value={settings.remote_preference || "any"}
             onChange={(e) => updateField("remote_preference", e.target.value)}
@@ -229,12 +280,18 @@ export default function Settings() {
             <option value="onsite">On-site only</option>
           </select>
         </Field>
-        <Field label="Minimum salary (optional)">
+        <Field label="Minimum salary (optional)" htmlFor="settings-min-salary">
           <input
+            id="settings-min-salary"
             type="number"
             className={inputCls}
             value={settings.min_salary || ""}
-            onChange={(e) => updateField("min_salary", e.target.value ? Number(e.target.value) : null)}
+            onChange={(e) =>
+              updateField(
+                "min_salary",
+                e.target.value ? Number(e.target.value) : null,
+              )
+            }
           />
         </Field>
       </Section>
@@ -242,10 +299,11 @@ export default function Settings() {
       <button
         onClick={handleSave}
         disabled={saving}
-        className="px-5 py-2 bg-signal text-white text-sm font-medium rounded hover:bg-signal/90 disabled:opacity-50 transition-colors"
+        aria-label="Save all settings"
+        className="px-5 py-2 bg-highlight text-base text-sm font-semibold rounded hover:bg-highlight/90 active:bg-highlight/80 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
       >
         {saving ? "Saving…" : saved ? "Saved" : "Save settings"}
       </button>
-    </div>
+    </main>
   );
 }

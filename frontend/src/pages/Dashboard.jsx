@@ -21,7 +21,7 @@ const POSTED_OPTIONS = [
 
 function StatCard({ label, value }) {
   return (
-    <div className="flex-1 bg-surface border border-accent rounded px-5 py-4">
+    <div className="flex-1 bg-card border border-accent/70 rounded-lg shadow-card px-5 py-4">
       <div className="text-2xl font-display font-semibold num text-ink">
         {value}
       </div>
@@ -83,13 +83,13 @@ export default function Dashboard() {
   }
 
   const inputCls =
-    "px-3 py-1.5 text-sm bg-surface border border-accent rounded text-ink outline-none focus-visible:ring-2 focus-visible:ring-highlight";
+    "px-3.5 py-2 text-sm bg-card border border-accent rounded-lg text-ink outline-none focus-visible:ring-2 focus-visible:ring-blue transition-shadow";
 
   return (
     <main>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-7">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink">
+          <h1 className="font-display text-[28px] tracking-tight font-semibold text-ink">
             Dashboard
           </h1>
           {lastSearch && (
@@ -110,7 +110,7 @@ export default function Dashboard() {
           onClick={handleRunSearch}
           disabled={searching}
           aria-label="Run a job search now"
-          className="px-4 py-2 bg-highlight text-base text-sm font-semibold rounded hover:bg-highlight/90 active:bg-highlight/80 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          className="px-4 py-2 bg-blue text-white text-sm font-semibold rounded-lg hover:bg-blue/90 active:bg-blue/80 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-base"
         >
           {searching ? "Searching…" : "Run search now"}
         </button>
@@ -119,13 +119,13 @@ export default function Dashboard() {
       {error && (
         <p
           role="alert"
-          className="mb-5 px-4 py-3 bg-accent/40 text-ink text-sm rounded border border-accent"
+          className="mb-5 px-4 py-3 bg-red/10 text-red text-sm rounded-lg border border-red/20"
         >
           {error}
         </p>
       )}
 
-      <section aria-label="Summary statistics" className="flex gap-3 mb-6">
+      <section aria-label="Summary statistics" className="flex gap-3 mb-7">
         <StatCard label="New" value={counts.New || 0} />
         <StatCard label="Interested" value={counts.Interested || 0} />
         <StatCard label="Applied" value={counts.Applied || 0} />
@@ -218,7 +218,7 @@ export default function Dashboard() {
 
       <section
         aria-label="Job listings"
-        className="bg-surface border border-accent rounded overflow-hidden"
+        className="bg-card border border-accent/70 rounded-lg shadow-card overflow-hidden"
       >
         {loading ? (
           <p className="px-5 py-10 text-center text-highlight/75 text-sm">

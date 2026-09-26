@@ -48,9 +48,9 @@ function AppShell() {
   }
 
   return (
-    <div className="flex min-h-screen bg-paper">
+    <div className="flex min-h-screen bg-base">
       <Sidebar />
-      <div className="flex-1 px-8 py-7">
+      <div className="flex-1 px-10 py-9 max-w-6xl">
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/privacy" element={<Privacy />} />

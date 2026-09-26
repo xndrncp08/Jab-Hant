@@ -38,11 +38,11 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-paper flex items-center justify-center px-4">
-      <main className="w-full max-w-sm">
+    <div className="min-h-screen bg-gradient-to-b from-blue/10 via-base to-base flex items-center justify-center px-4">
+      <main className="w-full max-w-[380px]">
         <div className="flex items-center gap-2 justify-center mb-8">
           <div
-            className="w-2.5 h-2.5 rounded-full bg-highlight"
+            className="w-2.5 h-2.5 rounded-full bg-blue"
             aria-hidden="true"
           />
           <span className="font-display font-semibold text-lg tracking-tight text-ink">
@@ -50,8 +50,8 @@ export default function Login() {
           </span>
         </div>
 
-        <div className="bg-surface border border-accent rounded-md p-6">
-          <h1 className="font-display text-xl font-semibold text-ink mb-1">
+        <div className="bg-card/80 backdrop-blur-xl border border-accent/70 rounded-xl shadow-raised p-7">
+          <h1 className="font-display text-[22px] tracking-tight font-semibold text-ink mb-1">
             Sign in
           </h1>
           <p className="text-sm text-highlight/75 mb-6">
@@ -81,7 +81,7 @@ export default function Login() {
                 aria-required="true"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-paper border border-accent rounded text-ink placeholder:text-highlight/55 outline-none focus-visible:ring-2 focus-visible:ring-highlight"
+                className="w-full px-3.5 py-2.5 text-sm bg-base border border-accent rounded-lg text-ink placeholder:text-highlight/55 outline-none focus-visible:ring-2 focus-visible:ring-blue transition-shadow"
                 placeholder="your username"
               />
             </div>
@@ -102,7 +102,7 @@ export default function Login() {
                 aria-required="true"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3 py-2 text-sm bg-paper border border-accent rounded text-ink placeholder:text-highlight/55 outline-none focus-visible:ring-2 focus-visible:ring-highlight"
+                className="w-full px-3.5 py-2.5 text-sm bg-base border border-accent rounded-lg text-ink placeholder:text-highlight/55 outline-none focus-visible:ring-2 focus-visible:ring-blue transition-shadow"
                 placeholder="••••••••"
               />
             </div>
@@ -111,7 +111,7 @@ export default function Login() {
               <p
                 id="login-error"
                 role="alert"
-                className="text-sm text-highlight bg-accent/40 border border-accent rounded px-3 py-2 mb-4"
+                className="text-sm text-red bg-red/10 border border-red/20 rounded-lg px-3 py-2 mb-4"
               >
                 {error}
               </p>
@@ -121,7 +121,7 @@ export default function Login() {
               type="submit"
               disabled={submitting}
               aria-busy={submitting}
-              className="w-full px-4 py-2.5 bg-highlight text-base font-semibold text-sm rounded hover:bg-highlight/90 active:bg-highlight/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+              className="w-full px-4 py-2.5 bg-blue text-white font-semibold text-sm rounded-lg hover:bg-blue/90 active:bg-blue/80 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-card"
             >
               {submitting ? "Checking…" : "Submit credentials"}
             </button>

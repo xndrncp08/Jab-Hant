@@ -15,7 +15,7 @@ export default function Applications() {
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-semibold text-ink mb-1">
+      <h1 className="font-display text-[28px] tracking-tight font-semibold text-ink mb-1">
         Applications
       </h1>
       <p className="text-sm text-highlight/75 mb-6">
@@ -24,7 +24,7 @@ export default function Applications() {
 
       <section
         aria-label="Tracked applications"
-        className="bg-surface border border-accent rounded overflow-hidden"
+        className="bg-card border border-accent/70 rounded-lg shadow-card overflow-hidden"
       >
         {loading ? (
           <p className="px-5 py-10 text-center text-highlight/75 text-sm">

@@ -20,7 +20,7 @@ function Section({ title, children }) {
   return (
     <section
       aria-label={title}
-      className="bg-surface border border-accent rounded p-5 mb-6"
+      className="bg-card border border-accent/70 rounded-lg shadow-card p-5 mb-6"
     >
       <h2 className="font-display font-semibold text-sm mb-4 text-ink">
         {title}
@@ -31,7 +31,7 @@ function Section({ title, children }) {
 }
 
 const inputCls =
-  "w-full px-3 py-2 text-sm border border-accent rounded outline-none focus-visible:ring-2 focus-visible:ring-highlight bg-paper text-ink placeholder:text-highlight/55";
+  "w-full px-3.5 py-2.5 text-sm border border-accent rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-blue bg-base text-ink placeholder:text-highlight/55 transition-shadow";
 
 export default function Settings() {
   const [resume, setResume] = useState(null);
@@ -107,14 +107,14 @@ export default function Settings() {
 
   return (
     <main className="max-w-2xl">
-      <h1 className="font-display text-2xl font-semibold text-ink mb-6">
+      <h1 className="font-display text-[28px] tracking-tight font-semibold text-ink mb-6">
         Settings
       </h1>
 
       {error && (
         <p
           role="alert"
-          className="mb-5 px-4 py-3 bg-accent/40 text-ink text-sm rounded border border-accent"
+          className="mb-5 px-4 py-3 bg-red/10 text-red text-sm rounded-lg border border-red/20"
         >
           {error}
         </p>
@@ -151,7 +151,7 @@ export default function Settings() {
           onClick={() => fileInput.current?.click()}
           disabled={uploading}
           aria-label={resume ? "Upload a new resume PDF" : "Upload resume PDF"}
-          className="px-4 py-2 border border-accent rounded text-sm font-medium text-ink hover:bg-accent/30 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-highlight"
+          className="px-4 py-2 border border-accent rounded-lg text-sm font-medium text-ink hover:bg-accent/30 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue"
         >
           {uploading
             ? "Uploading…"
@@ -300,7 +300,7 @@ export default function Settings() {
         onClick={handleSave}
         disabled={saving}
         aria-label="Save all settings"
-        className="px-5 py-2 bg-highlight text-base text-sm font-semibold rounded hover:bg-highlight/90 active:bg-highlight/80 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+        className="px-5 py-2 bg-blue text-white text-sm font-semibold rounded-lg hover:bg-blue/90 active:bg-blue/80 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-base"
       >
         {saving ? "Saving…" : saved ? "Saved" : "Save settings"}
       </button>

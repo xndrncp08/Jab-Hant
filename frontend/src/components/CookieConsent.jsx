@@ -108,7 +108,7 @@ export default function CookieConsent() {
       ref={dialogRef}
       className="fixed inset-x-0 bottom-0 z-50 p-4 flex justify-center"
     >
-      <div className="w-full max-w-2xl bg-surface border border-accent rounded-md shadow-lg p-5">
+      <div className="w-full max-w-2xl bg-card/90 backdrop-blur-xl border border-accent/70 rounded-xl shadow-raised p-5">
         <h2
           id="cookie-consent-title"
           className="font-display font-semibold text-ink mb-2"
@@ -125,7 +125,7 @@ export default function CookieConsent() {
           until you choose "Accept all." Read the full{" "}
           <Link
             to="/cookies"
-            className="underline text-highlight hover:text-highlight/80 focus-visible:ring-2 focus-visible:ring-highlight rounded"
+            className="underline text-blue hover:text-blue/80 focus-visible:ring-2 focus-visible:ring-blue rounded"
           >
             Cookie Policy
           </Link>
@@ -137,7 +137,7 @@ export default function CookieConsent() {
             type="button"
             onClick={acceptNecessaryOnly}
             aria-label="Accept necessary storage only, decline optional features"
-            className="px-4 py-2 text-sm font-medium border border-accent text-ink rounded hover:bg-accent/40 active:bg-accent/60 transition-colors focus-visible:ring-2 focus-visible:ring-highlight"
+            className="px-4 py-2 text-sm font-medium border border-accent text-ink rounded-lg hover:bg-accent/40 active:bg-accent/60 active:scale-[0.98] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue"
           >
             Accept necessary only
           </button>
@@ -145,7 +145,7 @@ export default function CookieConsent() {
             type="button"
             onClick={acceptAll}
             aria-label="Accept all storage, including optional features"
-            className="px-4 py-2 text-sm font-medium bg-highlight text-base rounded hover:bg-highlight/90 active:bg-highlight/80 transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            className="px-4 py-2 text-sm font-medium bg-blue text-white rounded-lg hover:bg-blue/90 active:bg-blue/80 active:scale-[0.98] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             Accept all
           </button>

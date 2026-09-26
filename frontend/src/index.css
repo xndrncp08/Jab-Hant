@@ -4,32 +4,67 @@
 
 /*
   Color system reference (see tailwind.config.js for the source of truth):
-    paper/base   #010736  — page background
-    surface/card #0D1C42  — panel/card background
-    line/accent  #22396F  — borders, dividers, secondary UI
-    ink/highlight #FCF1D0 — primary text + primary action color
+    base/paper    page background
+    card/surface  panel/card background
+    accent/line   hairline borders, dividers, subtle hover washes
+    ink           primary text
+    highlight     secondary/tertiary text, built from opacity steps
+    blue          accent — links, primary actions, focus rings
 
-  Text hierarchy is built from opacity steps on `highlight` rather than
-  introducing new hues, to stay inside the 4-color palette:
-    text-highlight        primary text   — ~17:1 contrast on paper, ~14.8:1 on card
-    text-highlight/75     secondary text — ~7.7:1 contrast on card (still comfortably AA)
-    text-highlight/55     tertiary text  — ~5.3:1 contrast on card (still passes AA, 4.5:1 min)
+  Values live here as CSS custom properties (light by default, overridden
+  under prefers-color-scheme: dark) so the entire app follows the OS
+  appearance automatically — no dark: variants needed in components.
+
+  Text hierarchy is opacity steps on `highlight` rather than new hues:
+    text-highlight/85   near-primary secondary text
+    text-highlight/75   secondary text
+    text-highlight/55   tertiary text
   Never go below /55 for body text — that's the floor where AA (4.5:1)
-  starts to fail against the card background specifically.
+  starts to fail.
 */
+
+:root {
+  --color-base: 245 245 247; /* #f5f5f7 */
+  --color-card: 255 255 255; /* #ffffff */
+  --color-accent: 210 210 215; /* #d2d2d7 — Apple separator gray */
+  --color-ink: 29 29 31; /* #1d1d1f */
+  --color-highlight: 60 60 67; /* Apple secondaryLabel base */
+  --color-blue: 0 113 227; /* #0071e3 */
+  --color-green: 52 199 89;
+  --color-red: 255 59 48;
+  --color-orange: 255 149 0;
+  --color-purple: 175 82 222;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-base: 0 0 0;
+    --color-card: 28 28 30; /* #1c1c1e */
+    --color-accent: 56 56 58; /* #38383a */
+    --color-ink: 245 245 247;
+    --color-highlight: 235 235 245; /* Apple secondaryLabel dark base */
+    --color-blue: 10 132 255; /* #0A84FF */
+    --color-green: 48 209 88;
+    --color-red: 255 69 58;
+    --color-orange: 255 159 10;
+    --color-purple: 191 90 242;
+  }
+}
 
 @layer base {
   html {
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   body {
-    background-color: #010736;
-    color: #FCF1D0;
+    background-color: rgb(var(--color-base));
+    color: rgb(var(--color-ink));
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   ::selection {
-    background: #fcf1d033;
+    background: rgb(var(--color-blue) / 0.25);
   }
 
   /* Explicit, visible focus ring on every interactive element — required
@@ -42,15 +77,41 @@
   textarea:focus-visible,
   select:focus-visible,
   [tabindex]:focus-visible {
-    outline: 2px solid #FCF1D0;
+    outline: 2px solid rgb(var(--color-blue));
     outline-offset: 2px;
-    border-radius: 3px;
+    border-radius: 6px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgb(var(--color-highlight) / 0.25);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: content-box;
   }
 }
 
 @layer utilities {
   .num {
-    font-family: "IBM Plex Mono", monospace;
+    font-family:
+      ui-monospace, "SF Mono", Menlo, Monaco, "Cascadia Code", monospace;
     font-variant-numeric: tabular-nums;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }

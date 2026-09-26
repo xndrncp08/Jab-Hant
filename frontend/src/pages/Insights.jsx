@@ -6,9 +6,9 @@ function KeywordBar({ skill, count, max }) {
   return (
     <div className="flex items-center gap-3 py-1">
       <span className="text-sm w-32 shrink-0 truncate text-ink">{skill}</span>
-      <div className="flex-1 h-2 bg-accent/30 rounded-full overflow-hidden">
+      <div className="flex-1 h-2 bg-accent/40 rounded-full overflow-hidden">
         <div
-          className="h-full bg-highlight rounded-full"
+          className="h-full bg-blue rounded-full"
           style={{ width: `${width}%` }}
         />
       </div>
@@ -58,10 +58,11 @@ export default function Insights() {
   }
 
   const maxCount = keywords?.most_requested?.[0]?.count || 1;
+  const cardCls = "bg-card border border-accent/70 rounded-lg shadow-card p-5 mb-6";
 
   return (
     <main className="max-w-3xl">
-      <h1 className="font-display text-2xl font-semibold text-ink mb-1">
+      <h1 className="font-display text-[28px] tracking-tight font-semibold text-ink mb-1">
         Insights
       </h1>
       <p className="text-sm text-highlight/75 mb-6">
@@ -70,16 +71,13 @@ export default function Insights() {
       </p>
 
       {matches && (
-        <section
-          aria-label="Match score distribution"
-          className="bg-surface border border-accent rounded p-5 mb-6"
-        >
+        <section aria-label="Match score distribution" className={cardCls}>
           <h2 className="font-display font-semibold text-sm mb-3 text-ink">
             Match distribution
           </h2>
           <div className="flex gap-4 text-sm num">
             <div>
-              <div className="text-2xl font-semibold text-ink">
+              <div className="text-2xl font-semibold text-green">
                 {matches.buckets["90-100"]}
               </div>
               <div className="text-xs text-highlight/75 mt-0.5 font-body">
@@ -87,7 +85,7 @@ export default function Insights() {
               </div>
             </div>
             <div>
-              <div className="text-2xl font-semibold text-ink">
+              <div className="text-2xl font-semibold text-blue">
                 {matches.buckets["75-89"]}
               </div>
               <div className="text-xs text-highlight/75 mt-0.5 font-body">
@@ -95,7 +93,7 @@ export default function Insights() {
               </div>
             </div>
             <div>
-              <div className="text-2xl font-semibold text-ink">
+              <div className="text-2xl font-semibold text-orange">
                 {matches.buckets["50-74"]}
               </div>
               <div className="text-xs text-highlight/75 mt-0.5 font-body">
@@ -103,7 +101,7 @@ export default function Insights() {
               </div>
             </div>
             <div>
-              <div className="text-2xl font-semibold text-ink">
+              <div className="text-2xl font-semibold text-red">
                 {matches.buckets["0-49"]}
               </div>
               <div className="text-xs text-highlight/75 mt-0.5 font-body">
@@ -119,10 +117,7 @@ export default function Insights() {
       )}
 
       {keywords && keywords.most_requested.length > 0 && (
-        <section
-          aria-label="Most requested skills"
-          className="bg-surface border border-accent rounded p-5 mb-6"
-        >
+        <section aria-label="Most requested skills" className={cardCls}>
           <h2 className="font-display font-semibold text-sm mb-4 text-ink">
             Most requested skills
           </h2>
@@ -146,7 +141,7 @@ export default function Insights() {
                 {keywords.strongly_represented.map((s) => (
                   <span
                     key={s}
-                    className="text-xs px-2 py-1 rounded bg-highlight text-base font-medium"
+                    className="text-xs px-2.5 py-1 rounded-full bg-green/10 text-green border border-green/25 font-medium"
                   >
                     ✓ {s}
                   </span>
@@ -161,7 +156,7 @@ export default function Insights() {
                 {keywords.underrepresented.map((s) => (
                   <span
                     key={s}
-                    className="text-xs px-2 py-1 rounded bg-accent/40 text-ink border border-accent"
+                    className="text-xs px-2.5 py-1 rounded-full bg-orange/10 text-orange border border-orange/25"
                   >
                     ⚠ {s}
                   </span>
@@ -176,7 +171,7 @@ export default function Insights() {
                 {keywords.not_found.map((s) => (
                   <span
                     key={s}
-                    className="text-xs px-2 py-1 rounded border border-dashed border-accent text-highlight/75"
+                    className="text-xs px-2.5 py-1 rounded-full border border-dashed border-accent text-highlight/75"
                   >
                     ⚠ {s}
                   </span>
@@ -189,7 +184,7 @@ export default function Insights() {
 
       <section
         aria-label="Resume improvement prompt generator"
-        className="bg-surface border border-accent rounded p-5"
+        className="bg-card border border-accent/70 rounded-lg shadow-card p-5"
       >
         <div className="flex items-center justify-between mb-2">
           <h2 className="font-display font-semibold text-sm text-ink">
@@ -199,7 +194,7 @@ export default function Insights() {
             onClick={handleGenerate}
             disabled={generating}
             aria-label="Generate resume improvement prompt"
-            className="px-3 py-1.5 bg-highlight text-base text-sm font-semibold rounded hover:bg-highlight/90 active:bg-highlight/80 disabled:opacity-50 transition-colors focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+            className="px-3 py-1.5 bg-blue text-white text-sm font-semibold rounded-lg hover:bg-blue/90 active:bg-blue/80 active:scale-[0.98] disabled:opacity-50 transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-card"
           >
             {generating ? "Generating…" : "Generate prompt"}
           </button>
@@ -210,7 +205,7 @@ export default function Insights() {
           Nothing is sent automatically — you control what gets shared.
         </p>
         {error && (
-          <p role="alert" className="text-sm text-ink mb-3">
+          <p role="alert" className="text-sm text-red mb-3">
             {error}
           </p>
         )}
@@ -224,12 +219,12 @@ export default function Insights() {
               readOnly
               value={prompt}
               rows={12}
-              className="w-full text-xs font-mono border border-accent rounded px-3 py-2 bg-paper text-ink resize-none focus-visible:ring-2 focus-visible:ring-highlight"
+              className="w-full text-xs font-mono border border-accent rounded-lg px-3.5 py-2.5 bg-base text-ink resize-none focus-visible:ring-2 focus-visible:ring-blue"
             />
             <button
               onClick={handleCopy}
               aria-label="Copy resume improvement prompt to clipboard"
-              className="mt-2 px-3 py-1.5 border border-accent rounded text-sm font-medium text-ink hover:bg-accent/30 transition-colors focus-visible:ring-2 focus-visible:ring-highlight"
+              className="mt-2 px-3 py-1.5 border border-accent rounded-lg text-sm font-medium text-ink hover:bg-accent/30 active:scale-[0.98] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue"
             >
               {copied ? "Copied" : "Copy prompt"}
             </button>

@@ -31,7 +31,7 @@ export default function SearchHistory() {
 
   return (
     <main>
-      <h1 className="font-display text-2xl font-semibold text-ink mb-1">
+      <h1 className="font-display text-[28px] tracking-tight font-semibold text-ink mb-1">
         Search history
       </h1>
       <p className="text-sm text-highlight/75 mb-6">
@@ -42,13 +42,13 @@ export default function SearchHistory() {
         <div>
           <button
             onClick={() => setSelected(null)}
-            className="text-sm text-highlight/75 hover:text-ink mb-4 focus-visible:ring-2 focus-visible:ring-highlight rounded"
+            className="text-sm text-highlight/75 hover:text-ink mb-4 focus-visible:ring-2 focus-visible:ring-blue rounded transition-colors"
           >
             ← Back to history
           </button>
           <section
             aria-label="Search run details"
-            className="bg-surface border border-accent rounded p-5 mb-4"
+            className="bg-card border border-accent/70 rounded-lg shadow-card p-5 mb-4"
           >
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -59,7 +59,7 @@ export default function SearchHistory() {
                   {selected.trigger}
                 </span>
               </div>
-              <span className="text-xs px-2 py-0.5 rounded border border-accent text-ink">
+              <span className="text-xs px-2 py-0.5 rounded-full border border-accent text-ink">
                 {selected.status}
               </span>
             </div>
@@ -86,7 +86,7 @@ export default function SearchHistory() {
                 {Object.entries(selected.sources).map(([source, status]) => (
                   <span
                     key={source}
-                    className="text-xs px-2 py-0.5 rounded border border-accent text-highlight/85"
+                    className="text-xs px-2 py-0.5 rounded-full border border-accent text-highlight/85"
                   >
                     {source}: {status}
                   </span>
@@ -105,7 +105,7 @@ export default function SearchHistory() {
           </section>
           <section
             aria-label="Jobs from this search"
-            className="bg-surface border border-accent rounded overflow-hidden"
+            className="bg-card border border-accent/70 rounded-lg shadow-card overflow-hidden"
           >
             {selected.jobs?.length > 0 ? (
               selected.jobs.map((job) => <JobRow key={job.id} job={job} />)
@@ -119,19 +119,19 @@ export default function SearchHistory() {
       ) : loading ? (
         <p className="text-highlight/75 text-sm">Loading…</p>
       ) : searches.length === 0 ? (
-        <p className="bg-surface border border-accent rounded px-5 py-10 text-center text-highlight/75 text-sm">
+        <p className="bg-card border border-accent/70 rounded-lg shadow-card px-5 py-10 text-center text-highlight/75 text-sm">
           No searches yet. Run one from the Dashboard.
         </p>
       ) : (
         <section
           aria-label="Search history list"
-          className="bg-surface border border-accent rounded overflow-hidden"
+          className="bg-card border border-accent/70 rounded-lg shadow-card overflow-hidden"
         >
           {searches.map((s) => (
             <button
               key={s.id}
               onClick={() => openSearch(s.id)}
-              className="w-full flex items-center justify-between px-5 py-4 border-b border-accent/50 last:border-0 hover:bg-accent/20 transition-colors text-left focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-inset"
+              className="w-full flex items-center justify-between px-5 py-4 border-b border-accent/50 last:border-0 hover:bg-accent/20 transition-colors duration-150 text-left focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-inset"
             >
               <div>
                 <div className="font-medium text-sm text-ink">

@@ -11,16 +11,16 @@ export default function JobRow({ job }) {
   return (
     <Link
       to={`/jobs/${job.id}`}
-      className="flex items-center gap-4 px-5 py-4 border-b border-accent/50 last:border-0 hover:bg-accent/20 transition-colors group focus-visible:ring-2 focus-visible:ring-highlight focus-visible:ring-inset"
+      className="flex items-center gap-4 px-5 py-4 border-b border-accent/60 last:border-0 hover:bg-accent/20 active:bg-accent/30 transition-colors duration-150 group focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-inset"
       aria-label={`${job.title} at ${job.company || "unknown company"}, ${job.status} status, match score ${job.match_score ?? "not available"}`}
     >
       {job.is_new ? (
         <span
-          className="w-1.5 h-1.5 rounded-full bg-highlight shrink-0"
+          className="w-2 h-2 rounded-full bg-blue shrink-0"
           aria-hidden="true"
         />
       ) : (
-        <span className="w-1.5 h-1.5 shrink-0" aria-hidden="true" />
+        <span className="w-2 h-2 shrink-0" aria-hidden="true" />
       )}
 
       <div className="flex-1 min-w-0">

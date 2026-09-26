@@ -7,14 +7,14 @@ export default function CookiePolicy() {
         <nav aria-label="Legal pages">
           <Link
             to="/"
-            className="text-sm text-highlight/75 hover:text-ink focus-visible:ring-2 focus-visible:ring-highlight rounded"
+            className="text-sm text-highlight/75 hover:text-ink focus-visible:ring-2 focus-visible:ring-blue rounded transition-colors"
           >
             ← Back to app
           </Link>
         </nav>
       </header>
       <main className="max-w-2xl mx-auto px-6 py-10">
-        <h1 className="font-display text-2xl font-semibold mb-1">
+        <h1 className="font-display text-[28px] tracking-tight font-semibold mb-1">
           Cookie Policy
         </h1>
         <p className="text-sm text-highlight/55 mb-8">
@@ -109,7 +109,7 @@ export default function CookiePolicy() {
             the{" "}
             <Link
               to="/privacy"
-              className="underline hover:text-ink focus-visible:ring-2 focus-visible:ring-highlight rounded"
+              className="underline text-blue hover:text-blue/80 focus-visible:ring-2 focus-visible:ring-blue rounded"
             >
               Privacy Policy
             </Link>{" "}

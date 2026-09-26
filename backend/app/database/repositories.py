@@ -4,7 +4,7 @@ hierarchy) since this is a small personal app — no need for the extra
 ceremony.
 """
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy import func
@@ -79,7 +79,8 @@ def create_job(db: Session, **kwargs) -> Job:
 def list_jobs(db: Session, *, status: Optional[str] = None, min_match: Optional[float] = None,
               company: Optional[str] = None, location: Optional[str] = None,
               remote_type: Optional[str] = None, source: Optional[str] = None,
-              search_text: Optional[str] = None, limit: int = 200, offset: int = 0):
+              search_text: Optional[str] = None, posted_within_days: Optional[int] = None,
+              limit: int = 200, offset: int = 0):
     q = db.query(Job)
     if status:
         q = q.filter(Job.status == status)
@@ -96,6 +97,10 @@ def list_jobs(db: Session, *, status: Optional[str] = None, min_match: Optional[
     if search_text:
         like = f"%{search_text}%"
         q = q.filter((Job.title.ilike(like)) | (Job.company.ilike(like)))
+    if posted_within_days is not None:
+        # Jobs with no known posting date can't be verified as recent, so they're excluded.
+        cutoff = datetime.now(timezone.utc) - timedelta(days=posted_within_days)
+        q = q.filter(Job.date_posted.isnot(None)).filter(Job.date_posted >= cutoff)
     q = q.order_by(Job.match_score.desc().nullslast(), Job.date_discovered.desc())
     return q.offset(offset).limit(limit).all()
 

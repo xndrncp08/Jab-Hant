@@ -21,13 +21,15 @@ def list_jobs(
     remote_type: Optional[str] = None,
     source: Optional[str] = None,
     q: Optional[str] = None,
+    posted_within_days: Optional[int] = None,
     limit: int = Query(200, le=1000),
     offset: int = 0,
     db: Session = Depends(get_db),
 ):
     jobs = repositories.list_jobs(
         db, status=status, min_match=min_match, company=company, location=location,
-        remote_type=remote_type, source=source, search_text=q, limit=limit, offset=offset,
+        remote_type=remote_type, source=source, search_text=q,
+        posted_within_days=posted_within_days, limit=limit, offset=offset,
     )
     return [_to_job_out(j) for j in jobs]
 

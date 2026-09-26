@@ -12,6 +12,12 @@ const STATUS_OPTIONS = [
   "Archived",
 ];
 const REMOTE_OPTIONS = ["Remote", "Hybrid", "On-site"];
+const POSTED_OPTIONS = [
+  { label: "Past 24 hours", value: "1" },
+  { label: "Past 3 days", value: "3" },
+  { label: "Past week", value: "7" },
+  { label: "Any time", value: "" },
+];
 
 function StatCard({ label, value }) {
   return (
@@ -37,6 +43,7 @@ export default function Dashboard() {
     min_match: "",
     remote_type: "",
     q: "",
+    posted_within_days: "3",
   });
 
   const load = useCallback(async () => {
@@ -189,6 +196,23 @@ export default function Dashboard() {
           <option value="80">80%+</option>
           <option value="60">60%+</option>
           <option value="40">40%+</option>
+        </select>
+        <label className="sr-only" htmlFor="filter-posted">
+          Filter by date posted
+        </label>
+        <select
+          id="filter-posted"
+          value={filters.posted_within_days}
+          onChange={(e) =>
+            setFilters((f) => ({ ...f, posted_within_days: e.target.value }))
+          }
+          className={inputCls}
+        >
+          {POSTED_OPTIONS.map((o) => (
+            <option key={o.label} value={o.value}>
+              {o.label}
+            </option>
+          ))}
         </select>
       </section>
 

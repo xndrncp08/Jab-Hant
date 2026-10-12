@@ -11,7 +11,7 @@ const BASE_URL = import.meta.env.VITE_API_URL ?? (import.meta.env.DEV ? "http://
 // about auth. See App.jsx, which listens for this.
 export const AUTH_EXPIRED_EVENT = "job-hunter:auth-expired";
 
-async function request(path, options = {}) {
+async function request(path, { blob = false, ...options } = {}) {
   const authHeader = getStoredAuthHeader();
   const isFormData = options.body instanceof FormData;
 
@@ -41,7 +41,7 @@ async function request(path, options = {}) {
     throw new Error(detail);
   }
   if (res.status === 204) return null;
-  return res.json();
+  return blob ? res.blob() : res.json();
 }
 
 // Used by the login form itself — deliberately bypasses the shared
@@ -68,6 +68,12 @@ export const api = {
   getJob: (id) => request(`/api/jobs/${id}`),
   updateJob: (id, fields) =>
     request(`/api/jobs/${id}`, { method: "PATCH", body: JSON.stringify(fields) }),
+  getTailoredResume: (id) => request(`/api/jobs/${id}/tailored-resume`),
+  generateTailoredResume: (id) =>
+    request(`/api/jobs/${id}/tailored-resume`, { method: "POST" }),
+  // Fetched as a blob (not a plain link) so the auth header is sent.
+  tailoredResumePdf: (id) =>
+    request(`/api/jobs/${id}/tailored-resume.pdf`, { blob: true }),
 
   // Search
   runSearch: () => request("/api/search", { method: "POST" }),

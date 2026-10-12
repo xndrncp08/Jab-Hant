@@ -220,6 +220,40 @@ export default function Settings() {
         </Field>
       </Section>
 
+      <Section title="Auto-apply">
+        <div className="flex items-center gap-2 mb-4">
+          <input
+            id="settings-auto-apply"
+            type="checkbox"
+            className="h-4 w-4 accent-blue"
+            checked={!!settings.auto_apply_enabled}
+            onChange={(e) =>
+              updateField("auto_apply_enabled", e.target.checked)
+            }
+          />
+          <label htmlFor="settings-auto-apply" className="text-sm text-ink">
+            After every search, tailor my resume for top matches
+          </label>
+        </div>
+        <Field
+          label="Auto-apply match score"
+          htmlFor="settings-auto-apply-score"
+          hint="New jobs at or above this score get an ATS-tailored resume and move to “Ready to apply”. Up to 10 per search. You still submit each application yourself."
+        >
+          <input
+            id="settings-auto-apply-score"
+            type="number"
+            min={0}
+            max={100}
+            className={inputCls}
+            value={settings.auto_apply_min_score ?? 70}
+            onChange={(e) =>
+              updateField("auto_apply_min_score", Number(e.target.value))
+            }
+          />
+        </Field>
+      </Section>
+
       <Section title="Schedule">
         <div className="grid grid-cols-3 gap-3">
           <Field label="Morning" htmlFor="settings-morning">

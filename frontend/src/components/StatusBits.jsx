@@ -11,6 +11,7 @@
  */
 const STATUS_ICON = {
   New: "●",
+  "Ready to apply": "✎",
   Interested: "☆",
   Applied: "↗",
   Interview: "◐",
@@ -35,6 +36,7 @@ const SOLID_BADGE = {
 
 const STATUS_BADGE_CLASS = {
   New: SOLID_BADGE.blue,
+  "Ready to apply": TINTED_BADGE.green,
   Interested: TINTED_BADGE.purple,
   Applied: TINTED_BADGE.orange,
   Interview: TINTED_BADGE.orange,

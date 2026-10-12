@@ -13,6 +13,7 @@ from apscheduler.triggers.cron import CronTrigger
 from app.config import settings
 from app.database import repositories
 from app.database.database import SessionLocal
+from app.services.auto_apply import run_auto_apply_in_new_session
 from app.services.pipeline import run_search
 
 logger = logging.getLogger("job_hunter.scheduler")
@@ -29,6 +30,7 @@ def scheduled_search_job() -> None:
         logger.exception("Scheduled search failed")
     finally:
         db.close()
+    run_auto_apply_in_new_session()
 
 
 def _parse_hhmm(value: str) -> tuple[int, int]:

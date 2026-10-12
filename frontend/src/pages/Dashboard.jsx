@@ -4,6 +4,7 @@ import JobRow from "../components/JobRow.jsx";
 
 const STATUS_OPTIONS = [
   "New",
+  "Ready to apply",
   "Interested",
   "Applied",
   "Interview",
@@ -127,6 +128,7 @@ export default function Dashboard() {
 
       <section aria-label="Summary statistics" className="flex gap-3 mb-7">
         <StatCard label="New" value={counts.New || 0} />
+        <StatCard label="Ready to apply" value={counts["Ready to apply"] || 0} />
         <StatCard label="Interested" value={counts.Interested || 0} />
         <StatCard label="Applied" value={counts.Applied || 0} />
         <StatCard label="Interview" value={counts.Interview || 0} />

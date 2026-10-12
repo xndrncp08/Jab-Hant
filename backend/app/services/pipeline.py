@@ -12,6 +12,9 @@ The end-to-end job search pipeline (build plan section 7):
         -> save job
         -> frontend displays job
 
+Callers then run the auto-apply agent (auto_apply.py) separately: it can
+take minutes with Claude, so the API runs it after responding.
+
 This module is what both the scheduler and the "Run Search Now" API
 endpoint call, so both paths always execute identically.
 """
@@ -140,6 +143,7 @@ def run_search(db: Session, *, trigger: str = "manual") -> dict:
     )
     logger.info("[%s] Search completed: %d new, %d duplicates, %d errors",
                 search_record.id, new_count, dup_count, len(errors))
+
     return {
         "search_id": completed.id,
         "jobs_scanned": len(raw_jobs),

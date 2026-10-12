@@ -19,7 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY backend/requirements.txt ./backend/requirements.txt
-RUN pip install --no-cache-dir -r backend/requirements.txt
+# CPU-only torch: the default CUDA build adds several GB and is unused here.
+RUN pip install --no-cache-dir -r backend/requirements.txt \
+    --extra-index-url https://download.pytorch.org/whl/cpu
 
 COPY backend/ ./backend/
 COPY --from=frontend-build /app/frontend/dist ./frontend/dist

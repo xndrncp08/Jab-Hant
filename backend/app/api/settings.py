@@ -6,6 +6,7 @@ from app.database import repositories
 from app.database.database import get_db
 from app.schemas import SettingsUpdate
 from app.scheduler import jobs as scheduler_jobs
+from app.services import auto_apply
 
 router = APIRouter(prefix="/api/settings", tags=["settings"])
 
@@ -24,6 +25,8 @@ DEFAULTS = {
     "remote_preference": "any",
     "min_salary": None,
     "employment_type_preference": [],
+    "auto_apply_enabled": False,
+    "auto_apply_min_score": auto_apply.DEFAULT_MIN_SCORE,
 }
 
 

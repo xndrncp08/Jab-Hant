@@ -9,10 +9,8 @@ FastAPI + SQLite + ChromaDB + React  ·  job search via JobSpy
 ```
 
 No account, no cloud service, no required paid API. Your resume and job
-data never leave your Mac unless you explicitly configure an external AI
-API for the (optional) improvement-prompt feature — and even then, that
-feature only ever generates a prompt for you to paste elsewhere; nothing is
-sent automatically.
+data never leave your Mac unless you set `ANTHROPIC_API_KEY` — then resume
+tailoring sends your resume and that job's description to Anthropic's API.
 
 ---
 
@@ -137,9 +135,32 @@ Google Jobs. A few things worth knowing:
 The **Insights** page has a **Generate prompt** button that builds a
 detailed prompt — your resume plus the jobs you've found, organized by
 match score and requested skills — for you to paste into ChatGPT, Claude,
-or any AI tool of your choice. The app itself never edits your resume
-automatically; you stay in control of what changes, based on your own
-judgment about what's actually true.
+or any AI tool of your choice.
+
+## Auto-apply (tailored resumes)
+
+Turn it on in **Settings → Auto-apply**. After every search (scheduled or
+manual), the auto-apply agent:
+
+1. Picks up to 10 jobs still marked **New** whose match score is at or
+   above your auto-apply score (default 70), best first.
+2. Writes an ATS-friendly version of your resume for each one: plain
+   text, single column, standard headings, the job's own wording for skills
+   you actually have. Download it as a PDF from the job's page.
+3. Moves the job to **Ready to apply**.
+
+You can also hit **Generate** on any job's page to tailor one by hand.
+
+- **With `ANTHROPIC_API_KEY`** in `backend/.env`, Claude (`claude-opus-5`)
+  rewrites the resume. It is told never to invent experience, but read
+  every line before you send it.
+- **Without a key**, a free offline pass puts the job's matching skills at
+  the top of your resume. Nothing leaves your machine.
+
+It does **not** submit applications. Job boards have no public apply API,
+and scripted form-filling breaks their terms, trips CAPTCHAs, and gets
+accounts banned. The last step is yours: open **Apply directly**, attach the
+PDF, then mark the job **Applied**.
 
 ## Project structure
 
@@ -151,7 +172,8 @@ job-hunter/
 │   │   ├── config.py            Settings (env-driven)
 │   │   ├── api/                 REST endpoints
 │   │   ├── services/            Resume parsing, embeddings, matching,
-│   │   │                        dedup, JobSpy wrapper, pipeline orchestrator
+│   │   │                        dedup, JobSpy wrapper, pipeline orchestrator,
+│   │   │                        resume tailoring + auto-apply agents
 │   │   ├── database/            SQLAlchemy models + repositories
 │   │   └── scheduler/           APScheduler (8am/12pm/8pm)
 │   ├── requirements.txt
@@ -173,11 +195,33 @@ source .venv/bin/activate
 pytest
 ```
 
-(A starter test suite isn't bundled by default — add tests under
-`backend/tests/` covering resume parsing, deduplication, and match scoring
-as you extend the app; the service functions in `app/services/` are written
-to be testable in isolation, with no network calls required for anything
-except the JobSpy search call and the one-time embedding-model download.)
+Frontend: `cd frontend && npm test`. Neither suite makes network calls.
+
+## CI/CD pipeline
+
+`.github/workflows/ci.yml` runs on every pull request and push to `main`:
+
+1. **backend**: install deps, run `pytest`
+2. **frontend**: `npm ci`, `npm test`, `npm run build`
+3. **docker** (pushes to `main` only, after both pass): builds the
+   `Dockerfile` and pushes `ghcr.io/<owner>/<repo>:latest` plus a
+   `sha-<commit>` tag
+
+## Deploying
+
+Run the published image anywhere that runs containers, with a volume for
+`/app/data` and your settings as environment variables:
+
+```bash
+docker run -d -p 8000:8000 -v jobhunter-data:/app/data \
+  -e APP_USERNAME=me -e APP_PASSWORD='long-random-password' \
+  -e ANTHROPIC_API_KEY=sk-ant-... \
+  ghcr.io/<owner>/<repo>:latest
+```
+
+Always set `APP_USERNAME`/`APP_PASSWORD` on anything reachable from the
+internet. GHCR packages start private; either make the package public or
+`docker login ghcr.io` on the host first.
 
 ## Future improvements (not built yet)
 

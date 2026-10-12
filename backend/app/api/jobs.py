@@ -1,13 +1,14 @@
 import json
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Response
 from sqlalchemy.orm import Session
 
 from app.database import repositories
 from app.database.database import get_db
 from app.database.models import JobStatus
 from app.schemas import JobDetailOut, JobOut, JobUpdate
+from app.services import auto_apply, resume_tailor
 
 router = APIRouter(prefix="/api/jobs", tags=["jobs"])
 
@@ -56,6 +57,41 @@ def update_job(job_id: str, payload: JobUpdate, db: Session = Depends(get_db)):
     if not job:
         raise HTTPException(404, "Job not found")
     return _to_job_detail_out(job)
+
+
+@router.get("/{job_id}/tailored-resume")
+def get_tailored_resume(job_id: str, db: Session = Depends(get_db)):
+    row = repositories.get_tailored_resume(db, job_id)
+    if not row:
+        raise HTTPException(404, "No tailored resume for this job yet.")
+    return {"content": row.content, "generator": row.generator, "created_at": row.created_at}
+
+
+@router.post("/{job_id}/tailored-resume")
+def generate_tailored_resume(job_id: str, db: Session = Depends(get_db)):
+    job = repositories.get_job(db, job_id)
+    if not job:
+        raise HTTPException(404, "Job not found")
+    resume = repositories.get_active_resume(db)
+    if not resume:
+        raise HTTPException(400, "Upload a resume first.")
+    try:
+        auto_apply.tailor_job(db, job, resume)
+    except Exception as exc:
+        raise HTTPException(502, f"Could not tailor resume: {exc}")
+    return get_tailored_resume(job_id, db)
+
+
+@router.get("/{job_id}/tailored-resume.pdf")
+def tailored_resume_pdf(job_id: str, db: Session = Depends(get_db)):
+    row = repositories.get_tailored_resume(db, job_id)
+    if not row:
+        raise HTTPException(404, "No tailored resume for this job yet.")
+    return Response(
+        resume_tailor.render_pdf(row.content),
+        media_type="application/pdf",
+        headers={"Content-Disposition": 'attachment; filename="resume.pdf"'},
+    )
 
 
 def _to_job_out(job) -> dict:

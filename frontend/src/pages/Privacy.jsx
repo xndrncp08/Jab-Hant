@@ -84,9 +84,10 @@ export default function Privacy() {
               anywhere.
             </li>
             <li>
-              If an optional external AI API is explicitly configured (it is off
-              by default), resume/job text could be sent to that provider. This
-              app never does so without that explicit configuration.
+              If an Anthropic API key is configured (it is off by default),
+              tailoring a resume sends your resume text and that job&apos;s
+              description to Anthropic&apos;s API. Without a key, tailoring runs
+              locally and nothing is sent.
             </li>
           </ul>
         </section>

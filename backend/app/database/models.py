@@ -36,6 +36,7 @@ def _now() -> datetime:
 
 class JobStatus(str, enum.Enum):
     NEW = "New"
+    READY_TO_APPLY = "Ready to apply"  # auto-apply agent has a tailored resume waiting
     INTERESTED = "Interested"
     APPLIED = "Applied"
     INTERVIEW = "Interview"
@@ -137,6 +138,18 @@ class Search(Base):
     status = Column(String, default="running")   # running | completed | failed
 
     jobs = relationship("Job", back_populates="search")
+
+
+class TailoredResume(Base):
+    """ATS-tailored resume text for one job. Separate table (not a Job
+    column) so existing databases pick it up via create_all, no migration."""
+
+    __tablename__ = "tailored_resumes"
+
+    job_id = Column(String, ForeignKey("jobs.id"), primary_key=True)
+    content = Column(Text, nullable=False)
+    generator = Column(String, nullable=False)  # "claude" | "keywords"
+    created_at = Column(DateTime, default=_now, onupdate=_now)
 
 
 class AppSetting(Base):

@@ -10,7 +10,7 @@ from typing import Optional
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.database.models import AppSetting, Job, JobStatus, Resume, Search
+from app.database.models import AppSetting, Job, JobStatus, Resume, Search, TailoredResume
 
 
 # ---------------------------------------------------------------------------
@@ -126,6 +126,20 @@ def update_job(db: Session, job_id: str, **fields) -> Optional[Job]:
 def job_counts_by_status(db: Session) -> dict:
     rows = db.query(Job.status, func.count(Job.id)).group_by(Job.status).all()
     return {status.value if hasattr(status, "value") else status: count for status, count in rows}
+
+
+def get_tailored_resume(db: Session, job_id: str) -> Optional[TailoredResume]:
+    return db.query(TailoredResume).filter(TailoredResume.job_id == job_id).first()
+
+
+def save_tailored_resume(db: Session, job_id: str, *, content: str, generator: str) -> TailoredResume:
+    row = get_tailored_resume(db, job_id) or TailoredResume(job_id=job_id)
+    row.content = content
+    row.generator = generator
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return row
 
 
 # ---------------------------------------------------------------------------

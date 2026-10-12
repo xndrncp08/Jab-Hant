@@ -5,6 +5,7 @@ import { StatusBadge, MatchScore } from "../components/StatusBits.jsx";
 
 const STATUS_OPTIONS = [
   "New",
+  "Ready to apply",
   "Interested",
   "Applied",
   "Interview",
@@ -19,16 +20,48 @@ export default function JobDetail() {
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+  const [tailored, setTailored] = useState(null);
+  const [tailoring, setTailoring] = useState(false);
+  const [tailorError, setTailorError] = useState(null);
 
   const load = useCallback(async () => {
     try {
       const data = await api.getJob(id);
       setJob(data);
       setNotes(data.notes || "");
+      // 404 just means none generated yet.
+      setTailored(await api.getTailoredResume(id).catch(() => null));
     } catch (e) {
       setError(e.message);
     }
   }, [id]);
+
+  async function generateTailored() {
+    setTailoring(true);
+    setTailorError(null);
+    try {
+      setTailored(await api.generateTailoredResume(id));
+    } catch (e) {
+      setTailorError(e.message);
+    } finally {
+      setTailoring(false);
+    }
+  }
+
+  async function downloadTailored() {
+    setTailorError(null);
+    try {
+      const blob = await api.tailoredResumePdf(id);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${[job.company, job.title, "resume"].filter(Boolean).join(" ").replace(/[^\w-]+/g, "_")}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setTailorError(e.message);
+    }
+  }
 
   useEffect(() => {
     load();
@@ -202,6 +235,53 @@ export default function JobDetail() {
           </div>
         </section>
       )}
+
+      <section aria-label="Tailored resume" className={cardCls}>
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <h2 className="font-display font-semibold text-sm text-ink">
+            ATS-tailored resume
+          </h2>
+          <div className="flex gap-2">
+            {tailored && (
+              <button
+                onClick={downloadTailored}
+                className="px-3 py-1.5 bg-blue text-white rounded-lg text-sm font-semibold hover:bg-blue/90 active:scale-[0.98] transition-all duration-150 focus-visible:ring-2 focus-visible:ring-blue focus-visible:ring-offset-2 focus-visible:ring-offset-base"
+              >
+                Download PDF
+              </button>
+            )}
+            <button
+              onClick={generateTailored}
+              disabled={tailoring}
+              className="px-3 py-1.5 border border-accent rounded-lg text-sm font-medium text-ink hover:bg-accent/30 active:scale-[0.98] transition-all duration-150 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-blue"
+            >
+              {tailoring ? "Tailoring…" : tailored ? "Regenerate" : "Generate"}
+            </button>
+          </div>
+        </div>
+        {tailorError && (
+          <p role="alert" className="text-sm text-red mb-3">
+            {tailorError}
+          </p>
+        )}
+        {tailored ? (
+          <>
+            <pre className="text-xs text-ink whitespace-pre-wrap font-mono bg-base border border-accent rounded-lg p-4 max-h-96 overflow-y-auto">
+              {tailored.content}
+            </pre>
+            <p className="text-xs text-highlight/55 mt-3">
+              {tailored.generator === "claude"
+                ? "Rewritten by Claude from your resume. Check every line is true before you send it."
+                : "Your resume with this job's matching skills moved to the top. Add ANTHROPIC_API_KEY for a full rewrite."}
+            </p>
+          </>
+        ) : (
+          <p className="text-sm text-highlight/75">
+            No tailored resume yet. Generate one, or turn on auto-apply in
+            Settings to prepare top matches after every search.
+          </p>
+        )}
+      </section>
 
       <section aria-label="Application status" className={cardCls}>
         <h2 className="font-display font-semibold text-sm mb-3 text-ink">

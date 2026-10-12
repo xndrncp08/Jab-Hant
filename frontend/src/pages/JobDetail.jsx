@@ -272,13 +272,13 @@ export default function JobDetail() {
             <p className="text-xs text-highlight/55 mt-3">
               {tailored.generator === "claude"
                 ? "Rewritten by Claude from your resume. Check every line is true before you send it."
-                : "Your resume with this job's matching skills moved to the top. Add ANTHROPIC_API_KEY for a full rewrite."}
+                : "Your resume with this job's matching skills moved to the top. Log in to Claude Code (a Claude Pro plan works) for a full rewrite."}
             </p>
           </>
         ) : (
           <p className="text-sm text-highlight/75">
             No tailored resume yet. Generate one, or turn on auto-apply in
-            Settings to prepare top matches after every search.
+            Settings to prepare top matches twice a day.
           </p>
         )}
       </section>

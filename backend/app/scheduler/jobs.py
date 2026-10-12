@@ -21,7 +21,11 @@ logger = logging.getLogger("job_hunter.scheduler")
 scheduler = BackgroundScheduler(timezone=settings.timezone)
 
 
-def scheduled_search_job() -> None:
+# Auto-apply runs after these two only, so it applies twice a day.
+AUTO_APPLY_JOB_IDS = {"morning_search", "evening_search"}
+
+
+def scheduled_search_job(auto_apply: bool = False) -> None:
     db = SessionLocal()
     try:
         logger.info("Running scheduled job search")
@@ -30,7 +34,8 @@ def scheduled_search_job() -> None:
         logger.exception("Scheduled search failed")
     finally:
         db.close()
-    run_auto_apply_in_new_session()
+    if auto_apply:
+        run_auto_apply_in_new_session()
 
 
 def _parse_hhmm(value: str) -> tuple[int, int]:
@@ -65,6 +70,7 @@ def start_scheduler() -> None:
             scheduled_search_job,
             CronTrigger(hour=hour, minute=minute, timezone=schedule["timezone"]),
             id=job_id,
+            kwargs={"auto_apply": job_id in AUTO_APPLY_JOB_IDS},
             replace_existing=True,
         )
         logger.info("Scheduled %s at %02d:%02d %s", job_id, hour, minute, schedule["timezone"])

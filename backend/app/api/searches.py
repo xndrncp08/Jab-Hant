@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from app.api.jobs import _to_job_out
@@ -8,20 +8,18 @@ from app.database import repositories
 from app.database.database import get_db
 from app.database.models import Job
 from app.schemas import SearchOut
-from app.services.auto_apply import run_auto_apply_in_new_session
 from app.services.pipeline import run_search
 
 router = APIRouter(prefix="/api/search", tags=["search"])
 
 
 @router.post("")
-def trigger_search(background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+def trigger_search(db: Session = Depends(get_db)):
     """'Run Search Now' — executes the exact same pipeline the scheduler uses."""
     try:
         result = run_search(db, trigger="manual")
     except ValueError as exc:
         raise HTTPException(400, str(exc))
-    background_tasks.add_task(run_auto_apply_in_new_session)
     return result
 
 

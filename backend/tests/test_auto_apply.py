@@ -17,6 +17,7 @@ RESUME = "Jane Doe | jane@example.com\n\nEXPERIENCE\nâ€¢ Built APIs in Python â€
 @pytest.fixture
 def db(monkeypatch):
     monkeypatch.setattr(settings, "anthropic_api_key", "")  # never hit the network
+    monkeypatch.setattr(resume_tailor.shutil, "which", lambda name: None)  # nor the local Claude Code
     engine = create_engine("sqlite://")
     Base.metadata.create_all(engine)
     session = sessionmaker(bind=engine)()
@@ -103,12 +104,43 @@ def test_claude_refusal_raises(monkeypatch):
         resume_tailor.tailor_with_claude(RESUME, title="Dev", company=None, description="")
 
 
-def test_manual_search_schedules_auto_apply_after_responding(monkeypatch):
-    from fastapi import BackgroundTasks
+def test_auto_apply_runs_only_after_morning_and_evening_searches(monkeypatch):
+    from apscheduler.schedulers.background import BackgroundScheduler
 
-    from app.api import searches
+    from app.scheduler import jobs
 
-    monkeypatch.setattr(searches, "run_search", lambda db, trigger: {"new_jobs": 0})
-    tasks = BackgroundTasks()
-    assert searches.trigger_search(tasks, db=None) == {"new_jobs": 0}
-    assert [t.func for t in tasks.tasks] == [searches.run_auto_apply_in_new_session]
+    calls = []
+    monkeypatch.setattr(jobs, "scheduler", BackgroundScheduler())
+    monkeypatch.setattr(jobs.scheduler, "start", lambda: None)
+    monkeypatch.setattr(jobs, "_current_schedule", lambda: {
+        "morning": "08:00", "afternoon": "12:00", "evening": "20:00", "timezone": "UTC"})
+    monkeypatch.setattr(jobs, "run_search", lambda db, trigger: None)
+    monkeypatch.setattr(jobs, "run_auto_apply_in_new_session", lambda: calls.append(1))
+    jobs.start_scheduler()
+
+    for job in jobs.scheduler.get_jobs():
+        job.func(**job.kwargs)
+    assert len(jobs.scheduler.get_jobs()) == 3 and len(calls) == 2
+
+
+def test_claude_code_path_used_without_api_key(monkeypatch):
+    monkeypatch.setattr(settings, "anthropic_api_key", "")
+    monkeypatch.setattr(resume_tailor.shutil, "which", lambda name: "/bin/claude")
+    seen = {}
+
+    def fake_run(cmd, **kw):
+        seen["cmd"] = cmd
+        return SimpleNamespace(returncode=0, stdout="TAILORED\n", stderr="")
+
+    monkeypatch.setattr(resume_tailor.subprocess, "run", fake_run)
+    content, generator = resume_tailor.tailor_resume(
+        resume_text=RESUME, resume_skills=[], title="Dev", company=None, description="", matching_skills=[])
+    assert (content, generator) == ("TAILORED", "claude")
+    assert seen["cmd"][seen["cmd"].index("--tools") + 1] == ""  # scraped text must never get tools
+
+
+def test_claude_code_failure_raises(monkeypatch):
+    monkeypatch.setattr(resume_tailor.subprocess, "run",
+                        lambda cmd, **kw: SimpleNamespace(returncode=1, stdout="", stderr="not logged in"))
+    with pytest.raises(resume_tailor.TailorError, match="not logged in"):
+        resume_tailor.tailor_with_claude_code(RESUME, title="Dev", company=None, description="")

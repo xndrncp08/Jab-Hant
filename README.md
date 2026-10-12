@@ -9,8 +9,9 @@ FastAPI + SQLite + ChromaDB + React  ·  job search via JobSpy
 ```
 
 No account, no cloud service, no required paid API. Your resume and job
-data never leave your Mac unless you set `ANTHROPIC_API_KEY` — then resume
-tailoring sends your resume and that job's description to Anthropic's API.
+data never leave your Mac unless Claude is available for resume tailoring
+(an `ANTHROPIC_API_KEY`, or Claude Code logged in on this machine). Then
+tailoring sends your resume and that job's description to Anthropic.
 
 ---
 
@@ -139,8 +140,8 @@ or any AI tool of your choice.
 
 ## Auto-apply (tailored resumes)
 
-Turn it on in **Settings → Auto-apply**. After every search (scheduled or
-manual), the auto-apply agent:
+Turn it on in **Settings → Auto-apply**. Twice a day, right after the
+morning and evening scheduled searches, the auto-apply agent:
 
 1. Picks up to 10 jobs still marked **New** whose match score is at or
    above your auto-apply score (default 70), best first.
@@ -151,11 +152,20 @@ manual), the auto-apply agent:
 
 You can also hit **Generate** on any job's page to tailor one by hand.
 
-- **With `ANTHROPIC_API_KEY`** in `backend/.env`, Claude (`claude-opus-5`)
-  rewrites the resume. It is told never to invent experience, but read
-  every line before you send it.
-- **Without a key**, a free offline pass puts the job's matching skills at
-  the top of your resume. Nothing leaves your machine.
+The first of these that's available does the rewriting:
+
+1. **`ANTHROPIC_API_KEY`** in `backend/.env`: Claude (`claude-opus-5`),
+   billed to your API account.
+2. **Claude Code logged in on this machine** (`claude` on your PATH): uses
+   your Claude Pro/Max plan, no API key. Each resume takes about 30–60
+   seconds and counts toward your plan's usage limits. Claude Code runs with
+   every tool turned off, so text in a job posting can't make it do anything.
+   Not available inside the Docker image.
+3. **Neither**: a free offline pass puts the job's matching skills at the
+   top of your resume. Nothing leaves your machine.
+
+Claude is told never to invent experience, but read every line before you
+send it.
 
 It does **not** submit applications. Job boards have no public apply API,
 and scripted form-filling breaks their terms, trips CAPTCHAs, and gets

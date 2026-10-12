@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     timezone: str = "America/Edmonton"
     search_location: str = "Calgary, Alberta, Canada"
     search_country: str = "Canada"
-    search_results_per_site: int = 50
+    search_results_per_site: int = 20
     search_distance: int = 50
     search_time_morning: str = "08:00"
     search_time_afternoon: str = "12:00"
@@ -21,7 +21,8 @@ class Settings(BaseSettings):
     app_username: str = ""
     app_password: str = ""
     embedding_model: str = "all-MiniLM-L6-v2"
-    job_boards: list[str] = ["indeed", "linkedin", "glassdoor", "zip_recruiter", "google"]
+    # glassdoor (location lookup 400s) and zip_recruiter (403s) fail from Canada.
+    job_boards: list[str] = ["indeed", "linkedin", "google"]
 
 settings = Settings()
 Path(settings.chroma_path).mkdir(parents=True, exist_ok=True)

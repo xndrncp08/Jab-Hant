@@ -52,7 +52,8 @@ def run_auto_apply(db: Session) -> dict:
     candidates = (
         db.query(Job)
         .outerjoin(TailoredResume, TailoredResume.job_id == Job.id)
-        .filter(Job.status == JobStatus.NEW, Job.match_score >= min_score, TailoredResume.job_id.is_(None))
+        .filter(Job.status == JobStatus.NEW, Job.match_score >= min_score, TailoredResume.job_id.is_(None),
+                Job.description.isnot(None), Job.description != "")  # nothing to tailor against
         .order_by(Job.match_score.desc())
         .limit(MAX_PER_RUN)
         .all()

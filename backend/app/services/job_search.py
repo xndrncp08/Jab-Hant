@@ -65,6 +65,11 @@ def _row_to_dict(row: pd.Series, source: str) -> dict:
     }
 
 
+# Only fetch postings from the last 3 days: older ones are hidden by the
+# Dashboard's default filter anyway, and skipping them keeps searches fast.
+HOURS_OLD = 72
+
+
 def _search_one_term(term: str, *, boards: list[str], location: str, country: str,
                       distance: int, results_per_site: int) -> tuple[str, list[dict], dict[str, str], list[dict]]:
     """Runs a single term across all boards. Isolated so a crash on one term
@@ -82,8 +87,11 @@ def _search_one_term(term: str, *, boards: list[str], location: str, country: st
             location=location,
             distance=distance,
             results_wanted=results_per_site,
+            hours_old=HOURS_OLD,
             country_indeed=country,
-            linkedin_fetch_description=True,
+            # Off for speed: fetching costs ~10s per LinkedIn job. LinkedIn jobs
+            # are then scored on title/location only and skipped by auto-apply.
+            linkedin_fetch_description=False,
         )
     except Exception as exc:  # JobSpy can raise for many reasons per-board
         logger.exception("JobSpy search failed for term=%s", term)

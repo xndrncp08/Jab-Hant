@@ -27,8 +27,8 @@ def db(monkeypatch):
     session.close()
 
 
-def _job(db, score, status=JobStatus.NEW):
-    job = Job(title="Dev", company="Acme", description="Python", match_score=score, status=status,
+def _job(db, score, status=JobStatus.NEW, description="Python"):
+    job = Job(title="Dev", company="Acme", description=description, match_score=score, status=status,
               match_explanation_json=json.dumps({"matching_skills": ["SQL"]}))
     db.add(job)
     db.commit()
@@ -56,10 +56,12 @@ def test_auto_apply_prepares_only_new_jobs_above_threshold_once(db):
     repositories.set_setting(db, "auto_apply_enabled", True)
     repositories.set_setting(db, "auto_apply_min_score", 80)
     high, low, applied = _job(db, 90), _job(db, 50), _job(db, 99, JobStatus.APPLIED)
+    no_description = _job(db, 99, description=None)
 
     assert auto_apply.run_auto_apply(db)["prepared"] == 1
     assert high.status == JobStatus.READY_TO_APPLY
     assert low.status == JobStatus.NEW and applied.status == JobStatus.APPLIED
+    assert no_description.status == JobStatus.NEW
     row = repositories.get_tailored_resume(db, high.id)
     assert row.generator == "keywords" and "SKILLS\nSQL, Python" in row.content
 

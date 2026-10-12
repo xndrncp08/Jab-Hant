@@ -232,13 +232,13 @@ export default function Settings() {
             }
           />
           <label htmlFor="settings-auto-apply" className="text-sm text-ink">
-            After every search, tailor my resume for top matches
+            Twice a day, tailor my resume for top matches
           </label>
         </div>
         <Field
           label="Auto-apply match score"
           htmlFor="settings-auto-apply-score"
-          hint="New jobs at or above this score get an ATS-tailored resume and move to “Ready to apply”. Up to 10 per search. You still submit each application yourself."
+          hint="Runs after the morning and evening searches. Up to 10 new jobs at or above this score get an ATS-tailored resume and move to “Ready to apply”. You still submit each application yourself."
         >
           <input
             id="settings-auto-apply-score"

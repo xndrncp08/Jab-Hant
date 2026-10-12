@@ -1,5 +1,6 @@
 """
-Auto-apply agent. Runs after every search (scheduled or manual):
+Auto-apply agent. Runs twice a day, right after the morning and evening
+scheduled searches (see scheduler/jobs.py):
 
     new jobs at/above the auto-apply score
         -> tailor the resume for each one (resume_tailor.py)
@@ -75,8 +76,7 @@ def run_auto_apply(db: Session) -> dict:
 
 
 def run_auto_apply_in_new_session() -> None:
-    """Entry point for the scheduler and API background tasks, which outlive
-    the request's DB session."""
+    """Entry point for the scheduler, which has no request DB session."""
     db = SessionLocal()
     try:
         run_auto_apply(db)

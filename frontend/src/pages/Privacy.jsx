@@ -84,10 +84,10 @@ export default function Privacy() {
               anywhere.
             </li>
             <li>
-              If an Anthropic API key is configured (it is off by default),
-              tailoring a resume sends your resume text and that job&apos;s
-              description to Anthropic&apos;s API. Without a key, tailoring runs
-              locally and nothing is sent.
+              If an Anthropic API key is set, or Claude Code is installed and
+              logged in on this machine, tailoring a resume sends your resume
+              text and that job&apos;s description to Anthropic. Otherwise
+              tailoring runs locally and nothing is sent.
             </li>
           </ul>
         </section>

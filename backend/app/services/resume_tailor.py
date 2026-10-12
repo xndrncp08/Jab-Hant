@@ -3,10 +3,15 @@ Resume tailoring agent: rewrites the active resume for one job so an
 applicant tracking system (ATS) parses it cleanly and finds the job's
 keywords.
 
-With ANTHROPIC_API_KEY set, Claude rewrites it (instructed never to invent
-experience). Without a key, a local keyword pass moves the job's matching
-skills to the top — no network, no cost.
+Claude rewrites it (instructed never to invent experience) through, in
+order: ANTHROPIC_API_KEY if set, else the local Claude Code CLI's login (e.g.
+a Claude Pro plan). With neither, a local keyword pass moves the job's
+matching skills to the top — no network, no cost.
 """
+import shutil
+import subprocess
+import tempfile
+
 import anthropic
 from fpdf import FPDF
 
@@ -31,6 +36,11 @@ class TailorError(RuntimeError):
     pass
 
 
+def _job_prompt(resume_text: str, title: str, company: str | None, description: str) -> str:
+    return (f"<job>\nTitle: {title}\nCompany: {company or 'Unknown'}\n\n{description}\n</job>\n\n"
+            f"<resume>\n{resume_text}\n</resume>")
+
+
 def tailor_with_claude(resume_text: str, *, title: str, company: str | None, description: str) -> str:
     client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
     response = client.beta.messages.create(
@@ -39,19 +49,29 @@ def tailor_with_claude(resume_text: str, *, title: str, company: str | None, des
         betas=["server-side-fallback-2026-07-01"],
         fallbacks="default",
         system=SYSTEM_PROMPT,
-        messages=[{
-            "role": "user",
-            "content": (
-                f"<job>\nTitle: {title}\nCompany: {company or 'Unknown'}\n\n{description}\n</job>\n\n"
-                f"<resume>\n{resume_text}\n</resume>"
-            ),
-        }],
+        messages=[{"role": "user", "content": _job_prompt(resume_text, title, company, description)}],
     )
     if response.stop_reason in ("refusal", "max_tokens"):
         raise TailorError(f"Claude stopped early ({response.stop_reason}); resume not tailored.")
     text = "".join(b.text for b in response.content if b.type == "text").strip()
     if not text:
         raise TailorError("Claude returned an empty resume.")
+    return text
+
+
+def tailor_with_claude_code(resume_text: str, *, title: str, company: str | None, description: str) -> str:
+    """Runs headless Claude Code on its own login, so a Claude Pro plan works
+    with no API key. All tools, settings files and MCP servers are off: the
+    job description is scraped web text and must not be able to run anything."""
+    result = subprocess.run(
+        ["claude", "-p", "--tools", "", "--system-prompt", SYSTEM_PROMPT, "--output-format", "text",
+         "--no-session-persistence", "--strict-mcp-config", "--setting-sources", ""],
+        input=_job_prompt(resume_text, title, company, description),
+        capture_output=True, text=True, timeout=600, cwd=tempfile.gettempdir(),
+    )
+    text = result.stdout.strip()
+    if result.returncode != 0 or not text:
+        raise TailorError(f"Claude Code failed (exit {result.returncode}): {(result.stderr or text)[-300:]}")
     return text
 
 
@@ -70,6 +90,8 @@ def tailor_resume(*, resume_text: str, resume_skills: list[str], title: str, com
     """Returns (content, generator)."""
     if settings.anthropic_api_key:
         return tailor_with_claude(resume_text, title=title, company=company, description=description), "claude"
+    if shutil.which("claude"):
+        return tailor_with_claude_code(resume_text, title=title, company=company, description=description), "claude"
     return tailor_with_keywords(resume_text, resume_skills, matching_skills), "keywords"
 
 

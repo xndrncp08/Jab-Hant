@@ -12,8 +12,8 @@ The end-to-end job search pipeline (build plan section 7):
         -> save job
         -> frontend displays job
 
-Callers then run the auto-apply agent (auto_apply.py) separately: it can
-take minutes with Claude, so the API runs it after responding.
+The scheduler runs the auto-apply agent (auto_apply.py) after the morning
+and evening searches.
 
 This module is what both the scheduler and the "Run Search Now" API
 endpoint call, so both paths always execute identically.
